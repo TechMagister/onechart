@@ -1,0 +1,47 @@
+apiVersion: v1
+entries:
+  cron-job:
+  - apiVersion: v2
+    created: "2025-11-06T13:43:31.936687839Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.7.0
+    description: One chart to rule them all. A generic Helm chart for your application
+      deployments. Because no-one can remember the Kubernetes yaml syntax.
+    digest: 325ada3321d295ae6cbeb1f29fb68509557b91f905711b6206036fba4b4d5924
+    name: cron-job
+    type: application
+    urls:
+    - https://github.com/TechMagister/onechart/releases/download/cron-job-0.75.0/cron-job-0.75.0.tgz
+    version: 0.75.0
+  onechart:
+  - apiVersion: v2
+    created: "2025-11-06T13:43:32.174558993Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.7.0
+    description: One chart to rule them all. A generic Helm chart for your application
+      deployments. Because no-one can remember the Kubernetes yaml syntax.
+    digest: 1416349549a82586c31378a7257b08fe4401d9e5300ee1d598e2b042d6d46fb4
+    name: onechart
+    type: application
+    urls:
+    - https://github.com/TechMagister/onechart/releases/download/onechart-0.75.0/onechart-0.75.0.tgz
+    version: 0.75.0
+  static-site:
+  - apiVersion: v2
+    created: "2025-11-06T13:43:32.421035206Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.7.0
+    description: Chart to build and deploy static sites
+    digest: 4831db8ed3f37a6ff29b51061d8f7cb6ed0c2a216c5ae4975850eccbf26d111c
+    name: static-site
+    type: application
+    urls:
+    - https://github.com/TechMagister/onechart/releases/download/static-site-0.75.0/static-site-0.75.0.tgz
+    version: 0.75.0
+generated: "2025-11-06T13:43:32.421039417Z"
