@@ -1,7 +1,7 @@
 
-.PHONY: all lint kubeval test package debug debug-ui
+.PHONY: all lint kubeval test debug debug-ui
 
-all: lint kubeval test package
+all: lint kubeval test
 
 lint:
 	helm lint charts/onechart/
@@ -36,21 +36,6 @@ test:
 
 	helm dependency update charts/static-site
 	helm unittest charts/static-site
-
-package:
-	helm dependency update charts/onechart
-	helm package charts/onechart
-	mv onechart*.tgz docs
-
-	helm dependency update charts/cron-job
-	helm package charts/cron-job
-	mv cron-job*.tgz docs
-
-	helm dependency update charts/static-site
-	helm package charts/static-site
-	mv static-site*.tgz docs
-
-	helm repo index docs --url https://chart.onechart.dev
 
 debug:
 	helm dependency update charts/onechart

@@ -1,7 +1,7 @@
 ---
 title: 'OneChart Reference'
 description: |
-  OneChart is a generic Helm chart for your application deployments. These are the underlying yaml files of deployments made with Gimlet.
+  OneChart is a generic Helm chart for your application deployments.
 ---
 
 > One chart to rule them all
@@ -15,7 +15,7 @@ OneChart is a generic Helm Chart for web applications. The idea is that most Kub
 Add the OneChart Helm repository:
 
 ```
-helm repo add onechart https://chart.onechart.dev
+helm repo add onechart https://techmagister.github.io/onechart
 ```
 
 Set your image name and version, the boilerplate is generated.
@@ -29,7 +29,7 @@ helm template my-release onechart/onechart \
 The example below deploys your application image, sets environment variables and configures the Kubernetes Ingress domain name:
 
 ```
-helm repo add onechart https://chart.onechart.dev
+helm repo add onechart https://techmagister.github.io/onechart
 helm template my-release onechart/onechart -f values.yaml
 
 # values.yaml
