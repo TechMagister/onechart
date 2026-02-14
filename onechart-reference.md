@@ -539,7 +539,9 @@ helm template my-release onechart/onechart -f values.yaml
 
 ## Security Context
 
-For security reasons, if your application doesn't require root access and writing to the root file system, we recommend you to set `readOnlyRootFilesystem: true` and `runAsNonRoot: true`.
+For security reasons, if your application doesn't require root access and writing to the root file system, we recommend you to set `readOnlyRootFilesystem: true` and `runAsNonRoot: true`.
+
+By default, OneChart sets `fsGroup: 999` in the pod security context. This is useful for applications that need to write to volumes and need a specific group ID for file permissions.
 
 **Example of setting security context for containers**
 
