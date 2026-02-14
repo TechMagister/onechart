@@ -705,3 +705,45 @@ The setting below will add or overwrite the Deployment resource's: `.spec.templ
 container:
   imagePullPolicy: Always
 ```
+
+## Deployment Strategy
+
+OneChart allows you to configure the deployment strategy for your Kubernetes Deployment.
+
+```
+strategy: RollingUpdate
+```
+
+Valid values are:
+- `RollingUpdate` (default) - Updates pods in a rolling update fashion
+- `Recreate` - Terminates all existing pods before creating new ones
+
+### Automatic Recreate Strategy
+
+OneChart automatically sets the strategy to `Recreate` if all the following conditions are met:
+- `replicas` is set to 1
+- You have volumes defined
+- You haven't explicitly set a strategy
+
+This is because volumes (especially PersistentVolumeClaims) can only be mounted by a single pod at a time.
+
+```
+volumes:
+  - name: data
+    path: /data
+    size: 10Gi
+# strategy will automatically be set to Recreate when replicas is 1
+```
+
+You can override this behavior by explicitly setting the strategy:
+
+```
+replicas: 1
+
+volumes:
+  - name: data
+    path: /data
+    size: 10Gi
+
+strategy: RollingUpdate
+```
