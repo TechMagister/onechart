@@ -17,6 +17,20 @@ entries:
     version: 0.75.0
   onechart:
   - apiVersion: v2
+    created: "2026-03-14T07:26:33.906025198Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.7.0
+    description: One chart to rule them all. A generic Helm chart for your application
+      deployments. Because no-one can remember the Kubernetes yaml syntax.
+    digest: 588d620ff96bffb4a646565daa6be220c5626799cc1e38e22a6b5c2f4e3ace46
+    name: onechart
+    type: application
+    urls:
+    - onechart-0.76.0.tgz
+    version: 0.76.0
+  - apiVersion: v2
     created: "2025-11-06T13:43:32.174558993Z"
     dependencies:
     - name: common
@@ -44,4 +58,4 @@ entries:
     urls:
     - https://github.com/TechMagister/onechart/releases/download/static-site-0.75.0/static-site-0.75.0.tgz
     version: 0.75.0
-generated: "2025-11-06T13:43:32.421039417Z"
+generated: "2026-03-14T07:26:33.906034345Z"
