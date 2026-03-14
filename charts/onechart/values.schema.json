@@ -11,7 +11,7 @@
         "repository": "nginx",
         "tag": "latest"
       },
-      "imagePullSecrets" : [],
+      "imagePullSecrets": [],
       "replicas": 1,
       "nameOverride": "",
       "fullnameOverride": "",
@@ -130,7 +130,7 @@
         ]
       }
     },
-    "imagePullSecrets" : {
+    "imagePullSecrets": {
       "$id": "#/properties/imagePullSecrets",
       "type": "array",
       "title": "ImagePull Secrets",
@@ -434,10 +434,7 @@
               "memory": "200mi"
             }
           ],
-          "required": [
-            "cpu",
-            "memory"
-          ],
+          "required": [],
           "properties": {
             "cpu": {
               "$id": "#/properties/resources/properties/limits/properties/cpu",
