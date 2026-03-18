@@ -19,8 +19,8 @@ tests:
       - equal:
           path: metadata.annotations
           value:
-            gimlet.io/git-repository: laszlocph/demo-app
-            gimlet.io/git-sha: xyz
+            git-repository: laszlocph/demo-app
+            git-sha: xyz
             v1alpha1.opensca.dev/vcs.owner: laszlocph
             v1alpha1.opensca.dev/vcs.name: demo-app
             v1alpha1.opensca.dev/version.sha: xyz

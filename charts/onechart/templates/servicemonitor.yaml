@@ -9,10 +9,10 @@ metadata:
   {{- if or .Values.gitRepository .Values.gitSha }}
   annotations:
     {{- if .Values.gitRepository }}
-    gimlet.io/git-repository: {{ .Values.gitRepository }}
+    git-repository: {{ .Values.gitRepository }}
     {{- end }}
     {{- if .Values.gitSha }}
-    gimlet.io/git-sha: {{ .Values.gitSha }}
+    git-sha: {{ .Values.gitSha }}
     {{- end }}
   {{- end }}
 spec:
