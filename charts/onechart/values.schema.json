@@ -1155,6 +1155,73 @@
         ]
       }
     }
+,
+    "logging": {
+      "$id": "#/properties/logging",
+      "type": "object",
+      "title": "Logging",
+      "description": "Configures a logging.banzaicloud.io/v1beta1 Flow resource for the logs of this release. The match section is managed automatically and selects the pods of this release based on their app.kubernetes.io labels.",
+      "default": {},
+      "examples": [
+        {
+          "framework": "slog_json",
+          "globalOutputRefs": [
+            "loki-output"
+          ],
+          "localOutputRefs": [
+            "my-local-output"
+          ],
+          "filters": [
+            {
+              "record_transformer": {
+                "records": [
+                  {
+                    "foo": "bar"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "required": [],
+      "properties": {
+        "framework": {
+          "type": "string",
+          "title": "Logging framework",
+          "description": "When set to slog_json, OneChart adds a parser filter to decode the JSON message produced by the standard library slog JSON handler, together with a record_transformer that tags the logs with application, Go and slog framework labels.",
+          "default": "",
+          "examples": [
+            "slog_json"
+          ]
+        },
+        "globalOutputRefs": {
+          "type": "array",
+          "title": "Global output references",
+          "description": "References to global outputs defined in the logging operator cluster resources.",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "localOutputRefs": {
+          "type": "array",
+          "title": "Local output references",
+          "description": "References to outputs defined in the same namespace as this release.",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
+        },
+        "filters": {
+          "type": "array",
+          "title": "Filters",
+          "description": "Logging operator filters applied to the flow. See the logging operator documentation for the available filters.",
+          "default": []
+        }
+      },
+      "additionalProperties": true
+    }
   },
   "additionalProperties": true
 }

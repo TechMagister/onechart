@@ -640,6 +640,36 @@ prometheusRules:
 helm template my-release onechart/onechart -f values.yaml
 ```
 
+## Logging
+
+For the [logging operator](https://github.com/kube-logging/logging-operator), OneChart can generate a `logging.banzaicloud.io/v1beta1` `Flow` resource for the logs of your release.
+
+The `match` section is managed automatically: it selects the pods of your release based on the `app.kubernetes.io/name` and `app.kubernetes.io/instance` labels OneChart puts on the deployment pods. You only have to configure the outputs and the optional filters.
+
+```
+# values.yaml
+image:
+  repository: nginx
+  tag: 1.19.3
+
+logging:
+  framework: slog_json
+  globalOutputRefs:
+    - loki-output
+  localOutputRefs:
+    - my-local-output
+  filters:
+    - tag_normaliser: {}
+```
+
+When `framework` is set to `slog_json`, OneChart adds a `parser` filter that decodes the JSON `message` field emitted by the Go standard library `slog` JSON handler, together with a `record_transformer` tagging the logs with `log_type: application`, `language: go` and `framework: slog`. Your additional `filters` are appended after those two.
+
+Check the Kubernetes manifest:
+
+```sh
+helm template my-release onechart/onechart -f values.yaml
+```
+
 ## Attaching a Sidecar
 
 This section shows how you can add a sidecar container.

@@ -1,0 +1,120 @@
+suite: test logging flow
+templates:
+  - loggingFlow.yaml
+release:
+  name: my-release
+  namespace: my-namespace
+tests:
+  - it: Should render a Flow with automatically managed match when logging is set
+    set:
+      logging:
+        globalOutputRefs:
+          - loki-output
+        localOutputRefs:
+          - my-local-output
+        filters:
+          - record_transformer:
+              records:
+                - foo: bar
+    asserts:
+      - equal:
+          path: apiVersion
+          value: logging.banzaicloud.io/v1beta1
+      - equal:
+          path: kind
+          value: Flow
+      - equal:
+          path: metadata.name
+          value: my-release
+      - equal:
+          path: metadata.namespace
+          value: my-namespace
+      - equal:
+          path: spec.match
+          value:
+            - select:
+                labels:
+                  app.kubernetes.io/name: onechart
+                  app.kubernetes.io/instance: my-release
+      - equal:
+          path: spec.filters
+          value:
+            - record_transformer:
+                records:
+                  - foo: bar
+      - equal:
+          path: spec.localOutputRefs
+          value:
+            - my-local-output
+      - equal:
+          path: spec.globalOutputRefs
+          value:
+            - loki-output
+  - it: Should append framework slog filters when logging.framework is slog json
+    set:
+      logging:
+        framework: slog_json
+        filters:
+          - tag_normaliser: {}
+    asserts:
+      - equal:
+          path: spec.filters
+          value:
+            - parser:
+                key_name: message
+                parse:
+                  type: json
+                remove_key_name_field: true
+                reserve_data: true
+                reserve_time: true
+            - record_transformer:
+                records:
+                  - log_type: application
+                  - language: go
+                  - framework: slog
+            - tag_normaliser: {}
+  - it: Should render framework filters only when there are no user filters
+    set:
+      logging:
+        framework: slog_json
+    asserts:
+      - equal:
+          path: spec.filters
+          value:
+            - parser:
+                key_name: message
+                parse:
+                  type: json
+                remove_key_name_field: true
+                reserve_data: true
+                reserve_time: true
+            - record_transformer:
+                records:
+                  - log_type: application
+                  - language: go
+                  - framework: slog
+  - it: Should not render filters when framework is not slog json and no filters are set
+    set:
+      logging:
+        framework: zap_json
+    asserts:
+      - isNull:
+          path: spec.filters
+  - it: Should render a Flow without filters or outputs when logging is set
+    set:
+      logging:
+        localOutputRefs: []
+    asserts:
+      - equal:
+          path: kind
+          value: Flow
+      - isNull:
+          path: spec.filters
+      - isNull:
+          path: spec.localOutputRefs
+      - isNull:
+          path: spec.globalOutputRefs
+  - it: Should not render a Flow when logging is not set
+    asserts:
+      - hasDocuments:
+          count: 0

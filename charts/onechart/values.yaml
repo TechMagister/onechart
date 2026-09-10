@@ -75,5 +75,19 @@ nodePortEnabled: false
 monitor:
   enabled: false
 
+# Generates a logging.banzaicloud.io/v1beta1 Flow resource for the logs
+# of this release. The match section is managed automatically and selects
+# the pods of this release based on their app.kubernetes.io labels.
+# logging:
+#   framework: slog_json
+#   globalOutputRefs:
+#     - loki-output
+#   localOutputRefs:
+#     - my-local-output
+#   filters:
+#     - record_transformer:
+#         records:
+#           - foo: bar
+
 container: {}
 podSpec: {}

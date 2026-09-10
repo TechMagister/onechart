@@ -1,0 +1,39 @@
+{{- define "common.loggingFlow.tpl" -}}
+{{- if .Values.logging }}
+---
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: Flow
+metadata:
+  name: {{ template "common.robustName" .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "helm-chart.labels" . | nindent 4 }}
+spec:
+  {{- /* The match is managed automatically: it selects the pods of this release by their labels. */}}
+  match:
+    - select:
+        labels:
+          app.kubernetes.io/name: {{ include "helm-chart.name" . }}
+          app.kubernetes.io/instance: {{ template "common.robustName" .Release.Name }}
+  {{- $filters := list }}
+  {{- if eq .Values.logging.framework "slog_json" }}
+  {{- $filters = append $filters (dict "parser" (dict "key_name" "message" "parse" (dict "type" "json") "remove_key_name_field" true "reserve_data" true "reserve_time" true)) }}
+  {{- $filters = append $filters (dict "record_transformer" (dict "records" (list (dict "log_type" "application") (dict "language" "go") (dict "framework" "slog")))) }}
+  {{- end }}
+  {{- range .Values.logging.filters }}
+  {{- $filters = append $filters . }}
+  {{- end }}
+  {{- if $filters }}
+  filters:
+    {{- toYaml $filters | nindent 4 }}
+  {{- end }}
+  {{- with .Values.logging.localOutputRefs }}
+  localOutputRefs:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.logging.globalOutputRefs }}
+  globalOutputRefs:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end -}}

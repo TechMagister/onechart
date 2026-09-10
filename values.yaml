@@ -30,3 +30,8 @@ probe:
 
 podSpec:
   hostNetwork: true
+
+logging:
+  framework: slog_json
+  globalOutputRefs:
+    - loki
