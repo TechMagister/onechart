@@ -22,9 +22,9 @@ jobs:
           chmod 700 get_helm.sh
           ./get_helm.sh
 
-          wget https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
-          tar xf kubeval-linux-amd64.tar.gz
-          sudo cp kubeval /usr/local/bin
+          wget https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
+          tar xf kubeconform-linux-amd64.tar.gz
+          sudo cp kubeconform /usr/local/bin
 
           helm plugin install https://github.com/helm-unittest/helm-unittest
 
@@ -36,7 +36,7 @@ jobs:
       - name: Test
         run: |
           make lint
-          make kubeval
+          make kubeconform
           make test
   release:
     runs-on: ubuntu-latest

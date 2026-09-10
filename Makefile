@@ -1,31 +1,31 @@
 
-.PHONY: all lint kubeval test debug debug-ui
+.PHONY: all lint kubeconform test debug debug-ui
 
-all: lint kubeval test
+all: lint kubeconform test
 
 lint:
 	helm lint charts/onechart/
 	helm lint charts/cron-job/
 	helm lint charts/static-site
 
-kubeval:
+kubeconform:
 	rm -rf manifests && true
 	mkdir manifests
 	helm template charts/onechart --output-dir manifests
-	find manifests/ -name '*.yaml' | xargs kubeval --ignore-missing-schemas -v 1.20.0
-	find manifests/ -name '*.yaml' | xargs kubeval --ignore-missing-schemas -v 1.24.0
+	kubeconform -ignore-missing-schemas -kubernetes-version 1.20.0 manifests
+	kubeconform -ignore-missing-schemas -kubernetes-version 1.24.0 manifests
 
 	rm -rf manifests && true
 	mkdir manifests
 	helm template charts/cron-job --output-dir manifests
-	find manifests/ -name '*.yaml' | xargs kubeval --ignore-missing-schemas -v 1.20.0
-	find manifests/ -name '*.yaml' | xargs kubeval --ignore-missing-schemas -v 1.24.0
+	kubeconform -ignore-missing-schemas -kubernetes-version 1.20.0 manifests
+	kubeconform -ignore-missing-schemas -kubernetes-version 1.24.0 manifests
 
 	rm -rf manifests && true
 	mkdir manifests
 	helm template charts/static-site --output-dir manifests
-	find manifests/ -name '*.yaml' | xargs kubeval --ignore-missing-schemas -v 1.20.0
-	find manifests/ -name '*.yaml' | xargs kubeval --ignore-missing-schemas -v 1.24.0
+	kubeconform -ignore-missing-schemas -kubernetes-version 1.20.0 manifests
+	kubeconform -ignore-missing-schemas -kubernetes-version 1.24.0 manifests
 
 test:
 	helm dependency update charts/onechart
