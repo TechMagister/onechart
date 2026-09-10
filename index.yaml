@@ -1,5 +1,15 @@
 apiVersion: v1
 entries:
+  common:
+  - apiVersion: v2
+    created: "2026-09-10T08:23:22.893599693Z"
+    description: A Helm chart for Kubernetes
+    digest: 7b3ec2c49d0d9f026cf9dbf6515ec500cb5aef280477c66594fffd8446d376ce
+    name: common
+    type: library
+    urls:
+    - common-0.8.0.tgz
+    version: 0.8.0
   cron-job:
   - apiVersion: v2
     created: "2025-11-06T13:43:31.936687839Z"
@@ -99,4 +109,4 @@ entries:
     urls:
     - https://github.com/TechMagister/onechart/releases/download/static-site-0.75.0/static-site-0.75.0.tgz
     version: 0.75.0
-generated: "2026-03-18T07:58:49.833902181Z"
+generated: "2026-09-10T08:23:23.588657528Z"
