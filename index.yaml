@@ -12,6 +12,20 @@ entries:
     version: 0.8.0
   cron-job:
   - apiVersion: v2
+    created: "2026-09-10T08:26:58.560570343Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.8.0
+    description: One chart to rule them all. A generic Helm chart for your application
+      deployments. Because no-one can remember the Kubernetes yaml syntax.
+    digest: 20da70df2b974c5d1a2774c8ac6a24bc8d0bd9581549bcc9b4fe063a211adf3f
+    name: cron-job
+    type: application
+    urls:
+    - cron-job-0.76.0.tgz
+    version: 0.76.0
+  - apiVersion: v2
     created: "2025-11-06T13:43:31.936687839Z"
     dependencies:
     - name: common
@@ -26,6 +40,20 @@ entries:
     - https://github.com/TechMagister/onechart/releases/download/cron-job-0.75.0/cron-job-0.75.0.tgz
     version: 0.75.0
   onechart:
+  - apiVersion: v2
+    created: "2026-09-10T08:26:58.788669409Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.8.0
+    description: One chart to rule them all. A generic Helm chart for your application
+      deployments. Because no-one can remember the Kubernetes yaml syntax.
+    digest: bd458369242bec657916f2c59092e95e5e3ce30bcfbaa13ae59f9b20882cc519
+    name: onechart
+    type: application
+    urls:
+    - onechart-0.77.0.tgz
+    version: 0.77.0
   - apiVersion: v2
     created: "2026-03-18T07:58:49.677671213Z"
     dependencies:
@@ -84,6 +112,19 @@ entries:
     version: 0.75.0
   static-site:
   - apiVersion: v2
+    created: "2026-09-10T08:26:58.997860605Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.8.0
+    description: Chart to build and deploy static sites
+    digest: f2754837b6a367bb61aa8e2d53345308dce157856ec661d2e4df91d44ea23bad
+    name: static-site
+    type: application
+    urls:
+    - static-site-0.76.0.tgz
+    version: 0.76.0
+  - apiVersion: v2
     created: "2026-03-18T07:58:49.833872345Z"
     dependencies:
     - name: common
@@ -109,4 +150,4 @@ entries:
     urls:
     - https://github.com/TechMagister/onechart/releases/download/static-site-0.75.0/static-site-0.75.0.tgz
     version: 0.75.0
-generated: "2026-09-10T08:23:23.588657528Z"
+generated: "2026-09-10T08:26:58.997886538Z"
