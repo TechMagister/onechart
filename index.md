@@ -45,6 +45,24 @@ ingress:
   host: my-app.mycompany.com
 ```
 
+## Kubernetes Recommended Labels
+
+OneChart supports the optional `component` and `partOf` values. They are rendered as the Kubernetes [recommended labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/) `app.kubernetes.io/component` and `app.kubernetes.io/part-of`:
+
+```
+nameOverride: assistant-ia
+component: api
+partOf: assistant-ia
+```
+
+`component` is the name of the component within the architecture (for example `api`, `worker` or `database`), while `partOf` is the name of a higher level application this one is part of (for example `assistant-ia`).
+
+Both labels are added to the `metadata.labels` of every generated resource that carries the chart's common labels (Deployment, Service, Ingress, ServiceMonitor, PrometheusRule, and any other object using the shared `helm-chart.labels` helper).
+
+These labels are purely informational. They are **not** part of any selector: `Deployment.spec.selector.matchLabels`, `Service.spec.selector` and the other selectors keep using `app.kubernetes.io/name` and `app.kubernetes.io/instance` only. Adding or removing `component`/`partOf` after a release therefore never desynchronizes the selectors and cannot orphan a Service. They are meant for observability, global selection (for example `kubectl get all -l app.kubernetes.io/part-of=assistant-ia`) and resource organization.
+
+Both values default to `""`: when they are not set, no `component` or `part-of` label is rendered, and the generated manifests are unchanged.
+
 ## Deploying an Image
 
 OneChart settings for deploying the Nginx image:
@@ -539,7 +557,9 @@ helm template my-release onechart/onechart -f values.yaml
 
 ## Security Context
 
-For security reasons, if your application doesn't require root access and writing to the root file system, we recommend you to set `readOnlyRootFilesystem: true` and `runAsNonRoot: true`.
+For security reasons, if your application doesn't require root access and writing to the root file system, we recommend you to set `readOnlyRootFilesystem: true` and `runAsNonRoot: true`.
+
+By default, OneChart sets `fsGroup: 999` in the pod security context. This is useful for applications that need to write to volumes and need a specific group ID for file permissions.
 
 **Example of setting security context for containers**
 
@@ -638,6 +658,36 @@ prometheusRules:
 helm template my-release onechart/onechart -f values.yaml
 ```
 
+## Logging
+
+For the [logging operator](https://github.com/kube-logging/logging-operator), OneChart can generate a `logging.banzaicloud.io/v1beta1` `Flow` resource for the logs of your release.
+
+The `match` section is managed automatically: it selects the pods of your release based on the `app.kubernetes.io/name` and `app.kubernetes.io/instance` labels OneChart puts on the deployment pods. You only have to configure the outputs and the optional filters.
+
+```
+# values.yaml
+image:
+  repository: nginx
+  tag: 1.19.3
+
+logging:
+  framework: slog_json
+  globalOutputRefs:
+    - loki-output
+  localOutputRefs:
+    - my-local-output
+  filters:
+    - tag_normaliser: {}
+```
+
+When `framework` is set to `slog_json`, OneChart adds a `parser` filter that decodes the JSON `message` field emitted by the Go standard library `slog` JSON handler, together with a `record_transformer` tagging the logs with `log_type: application`, `language: go` and `framework: slog`. Your additional `filters` are appended after those two.
+
+Check the Kubernetes manifest:
+
+```sh
+helm template my-release onechart/onechart -f values.yaml
+```
+
 ## Attaching a Sidecar
 
 This section shows how you can add a sidecar container.
@@ -704,4 +754,46 @@ The setting below will add or overwrite the Deployment resource's: `.spec.templ
 ```
 container:
   imagePullPolicy: Always
+```
+
+## Deployment Strategy
+
+OneChart allows you to configure the deployment strategy for your Kubernetes Deployment.
+
+```
+strategy: RollingUpdate
+```
+
+Valid values are:
+- `RollingUpdate` (default) - Updates pods in a rolling update fashion
+- `Recreate` - Terminates all existing pods before creating new ones
+
+### Automatic Recreate Strategy
+
+OneChart automatically sets the strategy to `Recreate` if all the following conditions are met:
+- `replicas` is set to 1
+- You have volumes defined
+- You haven't explicitly set a strategy
+
+This is because volumes (especially PersistentVolumeClaims) can only be mounted by a single pod at a time.
+
+```
+volumes:
+  - name: data
+    path: /data
+    size: 10Gi
+# strategy will automatically be set to Recreate when replicas is 1
+```
+
+You can override this behavior by explicitly setting the strategy:
+
+```
+replicas: 1
+
+volumes:
+  - name: data
+    path: /data
+    size: 10Gi
+
+strategy: RollingUpdate
 ```
