@@ -21,6 +21,16 @@ replicas: 1
 nameOverride: ""
 fullnameOverride: ""
 
+# Optional: the name of the component within the architecture.
+# See https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
+# Example: "api", "worker", "database"
+component: ""
+
+# Optional: the name of a higher level application this one is part of.
+# See https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
+# Example: "assistant-ia"
+partOf: ""
+
 podAnnotations: {}
 
 podLabels: {}

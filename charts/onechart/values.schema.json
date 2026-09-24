@@ -182,6 +182,28 @@
         ""
       ]
     },
+    "component": {
+      "$id": "#/properties/component",
+      "type": "string",
+      "title": "Component",
+      "description": "The name of the component within the architecture (Kubernetes recommended label app.kubernetes.io/component).",
+      "default": "",
+      "examples": [
+        "api",
+        "worker",
+        "database"
+      ]
+    },
+    "partOf": {
+      "$id": "#/properties/partOf",
+      "type": "string",
+      "title": "Part Of",
+      "description": "The name of a higher level application this one is part of (Kubernetes recommended label app.kubernetes.io/part-of).",
+      "default": "",
+      "examples": [
+        "assistant-ia"
+      ]
+    },
     "fullnameOverride": {
       "$id": "#/properties/fullnameOverride",
       "type": "string",

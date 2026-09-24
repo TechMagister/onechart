@@ -40,6 +40,12 @@ helm.sh/chart: {{ include "helm-chart.chart" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
+{{- if .Values.component }}
+app.kubernetes.io/component: {{ .Values.component | quote }}
+{{- end }}
+{{- if .Values.partOf }}
+app.kubernetes.io/part-of: {{ .Values.partOf | quote }}
+{{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
