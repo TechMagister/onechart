@@ -45,6 +45,24 @@ ingress:
   host: my-app.mycompany.com
 ```
 
+## Kubernetes Recommended Labels
+
+OneChart supports the optional `component` and `partOf` values. They are rendered as the Kubernetes [recommended labels](https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/) `app.kubernetes.io/component` and `app.kubernetes.io/part-of`:
+
+```
+nameOverride: assistant-ia
+component: api
+partOf: assistant-ia
+```
+
+`component` is the name of the component within the architecture (for example `api`, `worker` or `database`), while `partOf` is the name of a higher level application this one is part of (for example `assistant-ia`).
+
+Both labels are added to the `metadata.labels` of every generated resource that carries the chart's common labels (Deployment, Service, Ingress, ServiceMonitor, PrometheusRule, and any other object using the shared `helm-chart.labels` helper).
+
+These labels are purely informational. They are **not** part of any selector: `Deployment.spec.selector.matchLabels`, `Service.spec.selector` and the other selectors keep using `app.kubernetes.io/name` and `app.kubernetes.io/instance` only. Adding or removing `component`/`partOf` after a release therefore never desynchronizes the selectors and cannot orphan a Service. They are meant for observability, global selection (for example `kubectl get all -l app.kubernetes.io/part-of=assistant-ia`) and resource organization.
+
+Both values default to `""`: when they are not set, no `component` or `part-of` label is rendered, and the generated manifests are unchanged.
+
 ## Deploying an Image
 
 OneChart settings for deploying the Nginx image:
