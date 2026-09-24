@@ -481,7 +481,7 @@ loadbalancerEnabled: true
 
 ### Sticky sessions
 
-Set `stickySessions: true` to set `externalTrafficPolicy: Local` and a client-IP session affinity timeout of three hours (10800 seconds):
+Set `stickySessions: true` to enable `sessionAffinity: ClientIP` with a three-hour timeout (10800 seconds) and to set `externalTrafficPolicy: Local`:
 
 ```
 stickySessions: true
@@ -1205,7 +1205,7 @@ OneChart generates the following Kubernetes objects:
 | `nodePortEnabled`          | boolean | `false`              | Set the Service type to `NodePort`.                                          |
 | `nodePort`                 | integer |                      | Static node port.                                                            |
 | `loadbalancerEnabled`      | boolean | `false`              | Set the Service type to `LoadBalancer`.                                      |
-| `stickySessions`           | boolean | `false`              | Set `externalTrafficPolicy: Local` and a client-IP session affinity timeout. |
+| `stickySessions`           | boolean | `false`              | Set `sessionAffinity: ClientIP` with a three-hour timeout and `externalTrafficPolicy: Local`. |
 | `serviceAnnotations`       | map     |                      | Extra Service annotations.                                                   |
 | `ingress.host`             | string  |                      | Ingress host name.                                                           |
 | `ingress.ingressClassName` | string  |                      | Ingress class name.                                                          |

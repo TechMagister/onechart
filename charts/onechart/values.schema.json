@@ -80,6 +80,18 @@
           "examples": [
             "latest"
           ]
+        },
+        "pullPolicy": {
+          "$id": "#/properties/image/properties/pullPolicy",
+          "type": "string",
+          "title": "Pull Policy",
+          "description": "The image pull policy.",
+          "default": "IfNotPresent",
+          "examples": [
+            "IfNotPresent",
+            "Always",
+            "Never"
+          ]
         }
       }
     },
@@ -170,7 +182,7 @@
       "type": "boolean",
       "title": "Spread pods across nodes",
       "description": "This setting prevents pods to be placed on the same node",
-      "default": true
+      "default": false
     },
     "nameOverride": {
       "$id": "#/properties/nameOverride",
@@ -238,19 +250,25 @@
       "required": [],
       "additionalProperties": true
     },
-    "name": {
-      "$id": "#/properties/name",
+    "serviceName": {
+      "$id": "#/properties/serviceName",
       "type": "string",
       "title": "Service Name",
-      "description": "The service name for unique identification",
-      "default": ""
+      "description": "The service name for unique identification. Rendered as the v1alpha1.opensca.dev/name annotation.",
+      "default": "",
+      "examples": [
+        ""
+      ]
     },
-    "description": {
-      "$id": "#/properties/description",
+    "serviceDescription": {
+      "$id": "#/properties/serviceDescription",
       "type": "string",
       "title": "Service Description",
-      "description": "Human readable text description of the service",
-      "default": ""
+      "description": "Human readable text description of the service. Rendered as the v1alpha1.opensca.dev/description annotation.",
+      "default": "",
+      "examples": [
+        ""
+      ]
     },
     "ownerName": {
       "$id": "#/properties/ownerName",
@@ -728,33 +746,16 @@
       "default": "",
       "examples": []
     },
-    "secret": {
-      "$id": "#/properties/secret",
-      "type": "object",
-      "title": "The secret schema",
-      "description": "An explanation about the purpose of this instance.",
-      "default": {},
+    "secretEnabled": {
+      "$id": "#/properties/secretEnabled",
+      "type": "boolean",
+      "title": "Secret Enabled",
+      "description": "Load a Secret named exactly after the release with envFrom.",
+      "default": false,
       "examples": [
-        {
-          "enabled": false
-        }
-      ],
-      "required": [
-        "enabled"
-      ],
-      "properties": {
-        "enabled": {
-          "$id": "#/properties/secret/properties/enabled",
-          "type": "boolean",
-          "title": "The enabled schema",
-          "description": "An explanation about the purpose of this instance.",
-          "default": false,
-          "examples": [
-            false
-          ]
-        }
-      },
-      "additionalProperties": true
+        false,
+        true
+      ]
     },
     "shell": {
       "$id": "#/properties/shell",
@@ -874,6 +875,81 @@
             }
           ],
           "additionalProperties": true
+        },
+        "ingressClassName": {
+          "$id": "#/properties/ingress/properties/ingressClassName",
+          "type": "string",
+          "title": "Ingress Class Name",
+          "description": "The ingress class name, the modern replacement for the kubernetes.io/ingress.class annotation.",
+          "default": "",
+          "examples": [
+            "nginx"
+          ]
+        },
+        "path": {
+          "$id": "#/properties/ingress/properties/path",
+          "type": "string",
+          "title": "Path",
+          "description": "The path served by the ingress.",
+          "default": "/",
+          "examples": [
+            "/",
+            "/api"
+          ]
+        },
+        "pathType": {
+          "$id": "#/properties/ingress/properties/pathType",
+          "type": "string",
+          "title": "Path Type",
+          "description": "The Kubernetes path type.",
+          "default": "Prefix",
+          "examples": [
+            "Prefix",
+            "Exact",
+            "ImplementationSpecific"
+          ]
+        },
+        "paths": {
+          "$id": "#/properties/ingress/properties/paths",
+          "type": "array",
+          "title": "Multiple Paths",
+          "description": "Serve multiple paths on the same host. Overrides path and pathType.",
+          "default": [],
+          "examples": [
+            [
+              {
+                "path": "/",
+                "pathType": "Prefix"
+              },
+              {
+                "path": "/api",
+                "pathType": "Prefix"
+              }
+            ]
+          ],
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "title": "Path"
+              },
+              "pathType": {
+                "type": "string",
+                "title": "Path Type"
+              }
+            }
+          }
+        },
+        "secretName": {
+          "$id": "#/properties/ingress/properties/secretName",
+          "type": "string",
+          "title": "TLS Secret Name",
+          "description": "The name of the TLS secret used when tlsEnabled is true. Defaults to tls-<release name>.",
+          "default": "",
+          "examples": [
+            ""
+          ]
         }
       }
     },
@@ -968,6 +1044,18 @@
                   }
                 ],
                 "additionalProperties": true
+              },
+              "accessMode": {
+                "$id": "#/properties/volumes/items/anyOf/0/properties/accessMode",
+                "type": "string",
+                "title": "Access Mode",
+                "description": "The access mode of the generated PersistentVolumeClaim.",
+                "default": "ReadWriteOnce",
+                "examples": [
+                  "ReadWriteOnce",
+                  "ReadOnlyMany",
+                  "ReadWriteMany"
+                ]
               }
             },
             "required": [
@@ -1176,8 +1264,7 @@
           }
         ]
       }
-    }
-,
+    },
     "logging": {
       "$id": "#/properties/logging",
       "type": "object",
@@ -1243,6 +1330,433 @@
         }
       },
       "additionalProperties": true
+    },
+    "command": {
+      "$id": "#/properties/command",
+      "type": "string",
+      "title": "Command",
+      "description": "The command to run in the container.",
+      "default": "",
+      "examples": [
+        "while true; do date; sleep 2; done"
+      ]
+    },
+    "svcPort": {
+      "$id": "#/properties/svcPort",
+      "type": "integer",
+      "title": "Service Port",
+      "description": "The Service port when no ports list is set. Defaults to containerPort.",
+      "examples": [
+        80
+      ]
+    },
+    "ports": {
+      "$id": "#/properties/ports",
+      "type": "array",
+      "title": "Ports",
+      "description": "Replaces the default single http port on the container and the Service.",
+      "default": [],
+      "examples": [
+        [
+          {
+            "name": "http",
+            "containerPort": 8080,
+            "svcPort": 80
+          }
+        ]
+      ],
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "containerPort": {
+            "type": "integer",
+            "title": "Container Port"
+          },
+          "svcPort": {
+            "type": "integer",
+            "title": "Service Port"
+          },
+          "nodePort": {
+            "type": "integer",
+            "title": "Node Port"
+          },
+          "protocol": {
+            "type": "string",
+            "title": "Protocol",
+            "default": "TCP"
+          }
+        }
+      }
+    },
+    "nodePortEnabled": {
+      "$id": "#/properties/nodePortEnabled",
+      "type": "boolean",
+      "title": "Node Port Enabled",
+      "description": "Set the Service type to NodePort.",
+      "default": false,
+      "examples": [
+        false,
+        true
+      ]
+    },
+    "nodePort": {
+      "$id": "#/properties/nodePort",
+      "type": "integer",
+      "title": "Node Port",
+      "description": "The static node port on the default single-port Service.",
+      "examples": [
+        30080
+      ]
+    },
+    "loadbalancerEnabled": {
+      "$id": "#/properties/loadbalancerEnabled",
+      "type": "boolean",
+      "title": "Load Balancer Enabled",
+      "description": "Set the Service type to LoadBalancer.",
+      "default": false,
+      "examples": [
+        false,
+        true
+      ]
+    },
+    "stickySessions": {
+      "$id": "#/properties/stickySessions",
+      "type": "boolean",
+      "title": "Sticky Sessions",
+      "description": "Set sessionAffinity: ClientIP, a three hour client-IP affinity timeout, and externalTrafficPolicy: Local.",
+      "default": false,
+      "examples": [
+        false,
+        true
+      ]
+    },
+    "serviceAnnotations": {
+      "$id": "#/properties/serviceAnnotations",
+      "type": "object",
+      "title": "Service Annotations",
+      "description": "Annotations to place on the Service.",
+      "default": {},
+      "examples": [
+        {}
+      ],
+      "additionalProperties": true
+    },
+    "existingSecrets": {
+      "$id": "#/properties/existingSecrets",
+      "type": "array",
+      "title": "Existing Secrets",
+      "description": "Existing Secrets to load with envFrom.",
+      "default": [],
+      "examples": [],
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "optional": {
+            "type": "boolean",
+            "title": "Optional",
+            "default": false
+          }
+        }
+      }
+    },
+    "existingConfigMaps": {
+      "$id": "#/properties/existingConfigMaps",
+      "type": "array",
+      "title": "Existing ConfigMaps",
+      "description": "Existing ConfigMaps to load with envFrom.",
+      "default": [],
+      "examples": [],
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "optional": {
+            "type": "boolean",
+            "title": "Optional",
+            "default": false
+          }
+        }
+      }
+    },
+    "fileSecrets": {
+      "$id": "#/properties/fileSecrets",
+      "type": "array",
+      "title": "File Secrets",
+      "description": "Secrets created by OneChart and mounted as files.",
+      "default": [],
+      "examples": [],
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "subPath": {
+            "type": "string",
+            "title": "Sub Path"
+          },
+          "secrets": {
+            "type": "object",
+            "title": "Secrets",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "sealedFileSecrets": {
+      "$id": "#/properties/sealedFileSecrets",
+      "type": "array",
+      "title": "Sealed File Secrets",
+      "description": "Sealed secrets mounted as files.",
+      "default": [],
+      "examples": [],
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "subPath": {
+            "type": "string",
+            "title": "Sub Path"
+          },
+          "filesToMount": {
+            "type": "array",
+            "title": "Files To Mount",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "title": "Name"
+                },
+                "source": {
+                  "type": "string",
+                  "title": "Source"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "sidecar": {
+      "$id": "#/properties/sidecar",
+      "type": "object",
+      "title": "Sidecar",
+      "description": "An extra sidecar container.",
+      "default": {},
+      "examples": [
+        {}
+      ],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "title": "Repository"
+        },
+        "tag": {
+          "type": "string",
+          "title": "Tag"
+        },
+        "shell": {
+          "type": "string",
+          "title": "Shell"
+        },
+        "command": {
+          "type": "string",
+          "title": "Command"
+        }
+      }
+    },
+    "serviceAccount": {
+      "$id": "#/properties/serviceAccount",
+      "type": "string",
+      "title": "Service Account",
+      "description": "Sets spec.serviceAccountName. No ServiceAccount is created.",
+      "default": "",
+      "examples": [
+        ""
+      ]
+    },
+    "podSpec": {
+      "$id": "#/properties/podSpec",
+      "type": "object",
+      "title": "Pod Spec",
+      "description": "Fields merged onto the generated pod spec.",
+      "default": {},
+      "examples": [
+        {}
+      ],
+      "additionalProperties": true
+    },
+    "container": {
+      "$id": "#/properties/container",
+      "type": "object",
+      "title": "Container",
+      "description": "Fields merged onto the generated container.",
+      "default": {},
+      "examples": [
+        {}
+      ],
+      "additionalProperties": true
+    },
+    "monitor": {
+      "$id": "#/properties/monitor",
+      "type": "object",
+      "title": "Service Monitor",
+      "description": "Generates a Prometheus Operator ServiceMonitor when enabled.",
+      "default": {},
+      "examples": [
+        {
+          "enabled": false
+        }
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "default": false
+        },
+        "path": {
+          "type": "string",
+          "title": "Path",
+          "default": "/metrics"
+        },
+        "portName": {
+          "type": "string",
+          "title": "Port Name"
+        },
+        "scheme": {
+          "type": "string",
+          "title": "Scheme",
+          "default": "http"
+        },
+        "scrapeTimeout": {
+          "type": "string",
+          "title": "Scrape Timeout"
+        }
+      }
+    },
+    "prometheusRules": {
+      "$id": "#/properties/prometheusRules",
+      "type": "array",
+      "title": "Prometheus Rules",
+      "description": "PrometheusRule alerts rendered into a kubernetes-apps group.",
+      "default": [],
+      "examples": [],
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "title": "Message"
+          },
+          "runBookURL": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "title": "Runbook URL"
+          },
+          "expression": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "title": "Expression"
+          },
+          "for": {
+            "type": [
+              "string",
+              "number",
+              "null"
+            ],
+            "title": "For"
+          },
+          "labels": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "title": "Labels",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "extraDeploy": {
+      "$id": "#/properties/extraDeploy",
+      "type": "string",
+      "title": "Extra Deploy",
+      "description": "Arbitrary Kubernetes manifests rendered verbatim.",
+      "default": "",
+      "examples": [
+        ""
+      ]
+    },
+    "gitBranch": {
+      "$id": "#/properties/gitBranch",
+      "type": "string",
+      "title": "Git Branch",
+      "description": "The git branch that you are deploying. Rendered as annotations.",
+      "default": "",
+      "examples": [
+        ""
+      ]
+    },
+    "strategy": {
+      "$id": "#/properties/strategy",
+      "type": "string",
+      "title": "Deployment Strategy",
+      "description": "The Deployment strategy type: RollingUpdate or Recreate.",
+      "default": "",
+      "examples": [
+        "RollingUpdate",
+        "Recreate"
+      ]
+    },
+    "ingresses": {
+      "$id": "#/properties/ingresses",
+      "type": "array",
+      "title": "Ingresses",
+      "description": "Additional Ingresses with the same fields as ingress.",
+      "default": [],
+      "examples": [],
+      "items": {
+        "type": "object"
+      }
     }
   },
   "additionalProperties": true

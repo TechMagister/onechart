@@ -57,6 +57,7 @@ metadata:
 spec:
   type: {{ if .Values.nodePortEnabled }}NodePort{{ else if .Values.loadbalancerEnabled }}LoadBalancer{{ else }}ClusterIP{{ end }}
   {{- if .Values.stickySessions }}
+  sessionAffinity: ClientIP
   sessionAffinityConfig:
     clientIP:
       timeoutSeconds: 10800
