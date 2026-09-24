@@ -2,6 +2,15 @@ apiVersion: v1
 entries:
   common:
   - apiVersion: v2
+    created: "2026-09-24T10:23:11.037979399Z"
+    description: A Helm chart for Kubernetes
+    digest: e07f74e60a9823cc8836cf2c958aeefcddaa055d5da4fa9b9e53603145abce8b
+    name: common
+    type: library
+    urls:
+    - common-0.8.1.tgz
+    version: 0.8.1
+  - apiVersion: v2
     created: "2026-09-10T08:23:22.893599693Z"
     description: A Helm chart for Kubernetes
     digest: 7b3ec2c49d0d9f026cf9dbf6515ec500cb5aef280477c66594fffd8446d376ce
@@ -40,6 +49,20 @@ entries:
     - https://github.com/TechMagister/onechart/releases/download/cron-job-0.75.0/cron-job-0.75.0.tgz
     version: 0.75.0
   onechart:
+  - apiVersion: v2
+    created: "2026-09-24T10:23:11.402553611Z"
+    dependencies:
+    - name: common
+      repository: file://../common
+      version: 0.8.1
+    description: One chart to rule them all. A generic Helm chart for your application
+      deployments. Because no-one can remember the Kubernetes yaml syntax.
+    digest: 281467eb79c0c41cc633561ece7d64119f1ca263b8951d25dc62da617c9b4dad
+    name: onechart
+    type: application
+    urls:
+    - onechart-0.78.1.tgz
+    version: 0.78.1
   - apiVersion: v2
     created: "2026-09-24T08:36:02.145385222Z"
     dependencies:
@@ -164,4 +187,4 @@ entries:
     urls:
     - https://github.com/TechMagister/onechart/releases/download/static-site-0.75.0/static-site-0.75.0.tgz
     version: 0.75.0
-generated: "2026-09-24T08:36:02.14541082Z"
+generated: "2026-09-24T10:23:11.578034934Z"
