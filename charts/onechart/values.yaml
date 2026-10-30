@@ -54,6 +54,14 @@ tolerations: []
 probe:
   enabled: false
   path: "/"
+  # Port targeted by the probe. Defaults to containerPort when left empty.
+  # Point it at a dedicated health endpoint: probing an application route
+  # executes the route on every period.
+  port: ""
+  # HTTP or HTTPS.
+  scheme: HTTP
+  # Optional extra HTTP headers, e.g. [{name: Host, value: example.com}].
+  httpHeaders: []
   settings:
     initialDelaySeconds: 0
     periodSeconds: 10
@@ -65,12 +73,38 @@ probe:
 livenessProbe:
   enabled: false
   path: "/"
+  # Port targeted by the probe. Defaults to containerPort when left empty.
+  port: ""
+  # HTTP or HTTPS.
+  scheme: HTTP
+  # Optional extra HTTP headers, e.g. [{name: Host, value: example.com}].
+  httpHeaders: []
   settings:
     initialDelaySeconds: 0
     periodSeconds: 10
     successThreshold: 1
     timeoutSeconds: 3
     failureThreshold: 3
+
+# A startup probe defers the readiness and liveness probes until the
+# application has started. While it runs, the pod counts as "not ready yet"
+# instead of "failing", so slow boots do not trigger restarts.
+startupProbe:
+  enabled: false
+  path: "/"
+  # Port targeted by the probe. Defaults to containerPort when left empty.
+  port: ""
+  # HTTP or HTTPS.
+  scheme: HTTP
+  # Optional extra HTTP headers, e.g. [{name: Host, value: example.com}].
+  httpHeaders: []
+  settings:
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    successThreshold: 1
+    timeoutSeconds: 3
+    # 30 x 10s = 5 minutes of boot budget.
+    failureThreshold: 30
 
 secretEnabled: false
 

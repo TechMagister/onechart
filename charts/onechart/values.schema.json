@@ -575,6 +575,58 @@
             "/"
           ]
         },
+        "port": {
+          "$id": "#/properties/probe/properties/port",
+          "title": "Port",
+          "description": "Port the probe connects to. Leave it empty to use containerPort. Set it to a dedicated health or metrics port so the probe never hits an application route.",
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "examples": [
+            "",
+            9464
+          ]
+        },
+        "scheme": {
+          "$id": "#/properties/probe/properties/scheme",
+          "type": "string",
+          "title": "Scheme",
+          "description": "Scheme used by the probe",
+          "default": "HTTP",
+          "enum": [
+            "HTTP",
+            "HTTPS"
+          ]
+        },
+        "httpHeaders": {
+          "$id": "#/properties/probe/properties/httpHeaders",
+          "type": "array",
+          "title": "HTTP headers",
+          "description": "Extra HTTP headers sent with the probe, for instance a Host header",
+          "default": [],
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "value"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
         "settings": {
           "$id": "#/properties/probe/properties/settings",
           "type": "object",
@@ -675,6 +727,58 @@
             "/"
           ]
         },
+        "port": {
+          "$id": "#/properties/livenessProbe/properties/port",
+          "title": "Port",
+          "description": "Port the probe connects to. Leave it empty to use containerPort.",
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "examples": [
+            "",
+            9464
+          ]
+        },
+        "scheme": {
+          "$id": "#/properties/livenessProbe/properties/scheme",
+          "type": "string",
+          "title": "Scheme",
+          "description": "Scheme used by the probe",
+          "default": "HTTP",
+          "enum": [
+            "HTTP",
+            "HTTPS"
+          ]
+        },
+        "httpHeaders": {
+          "$id": "#/properties/livenessProbe/properties/httpHeaders",
+          "type": "array",
+          "title": "HTTP headers",
+          "description": "Extra HTTP headers sent with the probe, for instance a Host header",
+          "default": [],
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "value"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
         "settings": {
           "$id": "#/properties/livenessProbe/properties/settings",
           "type": "object",
@@ -733,6 +837,162 @@
               "default": 3,
               "minimum": 1,
               "maximum": 15
+            }
+          }
+        }
+      }
+    },
+    "startupProbe": {
+      "$id": "#/properties/startupProbe",
+      "type": "object",
+      "title": "Startup check",
+      "description": "The Kubernetes Startup probe holds the readiness and liveness probes until the application has booted",
+      "default": {},
+      "examples": [
+        {
+          "enabled": false,
+          "path": "/",
+          "settings": {
+            "failureThreshold": 30,
+            "periodSeconds": 10
+          }
+        }
+      ],
+      "required": [
+        "enabled",
+        "path"
+      ],
+      "properties": {
+        "enabled": {
+          "$id": "#/properties/startupProbe/properties/enabled",
+          "type": "boolean",
+          "title": "",
+          "description": "",
+          "default": false,
+          "examples": [
+            false
+          ]
+        },
+        "path": {
+          "$id": "#/properties/startupProbe/properties/path",
+          "type": "string",
+          "title": "Path",
+          "description": "The web endpoint that returns HTTP 200 once your application has started",
+          "default": "/",
+          "examples": [
+            "/"
+          ]
+        },
+        "port": {
+          "$id": "#/properties/startupProbe/properties/port",
+          "title": "Port",
+          "description": "Port the probe connects to. Leave it empty to use containerPort.",
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "examples": [
+            "",
+            9464
+          ]
+        },
+        "scheme": {
+          "$id": "#/properties/startupProbe/properties/scheme",
+          "type": "string",
+          "title": "Scheme",
+          "description": "Scheme used by the probe",
+          "default": "HTTP",
+          "enum": [
+            "HTTP",
+            "HTTPS"
+          ]
+        },
+        "httpHeaders": {
+          "$id": "#/properties/startupProbe/properties/httpHeaders",
+          "type": "array",
+          "title": "HTTP headers",
+          "description": "Extra HTTP headers sent with the probe, for instance a Host header",
+          "default": [],
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "value"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "settings": {
+          "$id": "#/properties/startupProbe/properties/settings",
+          "type": "object",
+          "title": "Probe thresholds",
+          "description": "Tune the probe behavior",
+          "examples": [
+            {
+              "failureThreshold": 30,
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 3
+            }
+          ],
+          "properties": {
+            "initialDelaySeconds": {
+              "$id": "#/properties/startupProbe/properties/settings/properties/initialDelaySeconds",
+              "type": "integer",
+              "title": "Initial Delay Seconds",
+              "description": "Number of seconds after the container has started before the probe is initiated",
+              "default": 0,
+              "minimum": 0,
+              "maximum": 180
+            },
+            "periodSeconds": {
+              "$id": "#/properties/startupProbe/properties/settings/properties/periodSeconds",
+              "type": "integer",
+              "title": "Period",
+              "description": "How often (in seconds) to perform the probe",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 60
+            },
+            "successThreshold": {
+              "$id": "#/properties/startupProbe/properties/settings/properties/successThreshold",
+              "type": "integer",
+              "title": "Success Threshold",
+              "description": "Minimum consecutive successes for the probe to be considered successful after having failed",
+              "default": 1,
+              "minimum": 1,
+              "maximum": 15
+            },
+            "timeoutSeconds": {
+              "$id": "#/properties/startupProbe/properties/settings/properties/timeoutSeconds",
+              "type": "integer",
+              "title": "Timeout",
+              "description": "Number of seconds after which the probe times out",
+              "default": 3,
+              "minimum": 1,
+              "maximum": 30
+            },
+            "failureThreshold": {
+              "$id": "#/properties/startupProbe/properties/settings/properties/failureThreshold",
+              "type": "integer",
+              "title": "Failure Threshold",
+              "description": "How many times the probe may fail before the container is considered failed. Multiply by periodSeconds to get the boot budget",
+              "default": 30,
+              "minimum": 1,
+              "maximum": 120
             }
           }
         }

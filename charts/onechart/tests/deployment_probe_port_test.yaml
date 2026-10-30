@@ -1,0 +1,191 @@
+suite: test deployment
+templates:
+  - deployment.yaml
+  - configmap.yaml
+tests:
+  - it: Should default the readiness probe port to containerPort
+    set:
+      containerPort: 8080
+      probe:
+        enabled: true
+    asserts:
+      - template: deployment.yaml
+        documentIndex: 0
+        equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet
+          value:
+            path: "/"
+            port: 8080
+            scheme: HTTP
+
+  - it: Should probe a dedicated health port instead of the application port
+    set:
+      containerPort: 3000
+      probe:
+        enabled: true
+        path: /healthz
+        port: 9464
+        settings:
+          periodSeconds: 30
+    asserts:
+      - template: deployment.yaml
+        documentIndex: 0
+        equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value:
+            httpGet:
+              path: /healthz
+              port: 9464
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 3
+            failureThreshold: 3
+      - template: deployment.yaml
+        documentIndex: 0
+        equal:
+          path: spec.template.spec.containers[0].ports[0].containerPort
+          value: 3000
+
+  - it: Should accept a named port on the readiness probe
+    set:
+      probe:
+        enabled: true
+        port: metrics
+    asserts:
+      - template: deployment.yaml
+        documentIndex: 0
+        equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.port
+          value: metrics
+
+  - it: Should set a HTTPS readiness probe
+    set:
+      probe:
+        enabled: true
+        scheme: HTTPS
+    asserts:
+      - template: deployment.yaml
+        documentIndex: 0
+        equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.scheme
+          value: HTTPS
+
+  - it: Should send HTTP headers with the readiness probe
+    set:
+      probe:
+        enabled: true
+        httpHeaders:
+          - name: Host
+            value: example.com
+    asserts:
+      - template: deployment.yaml
+        documentIndex: 0
+        equal:
+          path: spec.template.spec.containers[0].readinessProbe
+          value:
+            httpGet:
+              path: "/"
+              port: 80
+              scheme: HTTP
+              httpHeaders:
+                - name: Host
+                  value: example.com
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+  - it: Should default the liveness probe port to containerPort
+    set:
+      containerPort: 8080
+      livenessProbe:
+        enabled: true
+    asserts:
+      - template: deployment.yaml
+        documentIndex: 0
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet
+          value:
+            path: "/"
+            port: 8080
+            scheme: HTTP
+
+  - it: Should probe a dedicated port with the liveness probe
+    set:
+      containerPort: 3000
+      livenessProbe:
+        enabled: true
+        path: /healthz
+        port: 9464
+        scheme: HTTPS
+        httpHeaders:
+          - name: Host
+            value: example.com
+    asserts:
+      - template: deployment.yaml
+        documentIndex: 0
+        equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet
+          value:
+            path: /healthz
+            port: 9464
+            scheme: HTTPS
+            httpHeaders:
+              - name: Host
+                value: example.com
+
+  - it: Should not set a startupProbe by default
+    asserts:
+      - template: deployment.yaml
+        documentIndex: 0
+        isNull:
+          path: spec.template.spec.containers[0].startupProbe
+
+  - it: Should set a startup probe with a 5 minute boot budget
+    set:
+      startupProbe:
+        enabled: true
+    asserts:
+      - template: deployment.yaml
+        documentIndex: 0
+        equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value:
+            httpGet:
+              path: "/"
+              port: 80
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+            failureThreshold: 30
+
+  - it: Should tune the startup probe
+    set:
+      containerPort: 3000
+      startupProbe:
+        enabled: true
+        path: /healthz
+        port: 9464
+        settings:
+          periodSeconds: 5
+          failureThreshold: 60
+    asserts:
+      - template: deployment.yaml
+        documentIndex: 0
+        equal:
+          path: spec.template.spec.containers[0].startupProbe
+          value:
+            httpGet:
+              path: /healthz
+              port: 9464
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+            failureThreshold: 60

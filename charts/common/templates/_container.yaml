@@ -22,12 +22,30 @@ ports:
     protocol: TCP
   {{- end }}
   {{- end }}
+{{- if .Values.startupProbe.enabled }}
+startupProbe:
+  httpGet:
+    path: {{ .Values.startupProbe.path }}
+    port: {{ default .Values.containerPort .Values.startupProbe.port }}
+    scheme: {{ default "HTTP" .Values.startupProbe.scheme }}
+    {{- with .Values.startupProbe.httpHeaders }}
+    httpHeaders:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  {{- with .Values.startupProbe.settings }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+{{- end }}
 {{- if .Values.probe.enabled }}
 readinessProbe:
   httpGet:
     path: {{ .Values.probe.path }}
-    port: {{ .Values.containerPort }}
-    scheme: HTTP
+    port: {{ default .Values.containerPort .Values.probe.port }}
+    scheme: {{ default "HTTP" .Values.probe.scheme }}
+    {{- with .Values.probe.httpHeaders }}
+    httpHeaders:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
   {{- with .Values.probe.settings }}
   {{- toYaml . | nindent 2 }}
   {{- end }}
@@ -36,8 +54,12 @@ readinessProbe:
 livenessProbe:
   httpGet:
     path: {{ .Values.livenessProbe.path }}
-    port: {{ .Values.containerPort }}
-    scheme: HTTP
+    port: {{ default .Values.containerPort .Values.livenessProbe.port }}
+    scheme: {{ default "HTTP" .Values.livenessProbe.scheme }}
+    {{- with .Values.livenessProbe.httpHeaders }}
+    httpHeaders:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
   {{- with .Values.livenessProbe.settings }}
   {{- toYaml . | nindent 2 }}
   {{- end }}

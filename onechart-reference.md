@@ -678,21 +678,72 @@ probe:
 | timeoutSeconds      | Number of seconds after which the probe times out.                                                                                              |
 | failureThreshold    | When a probe fails, Kubernetes will tries this many times before giving up. Giving up the pod will be marked Unready and won't get any traffic. |
 
+### Probe port, scheme and headers
+
+By default the readiness probe targets the application `containerPort` over plain HTTP. You can point it somewhere else:
+
+```
+containerPort: 3000
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+
+probe:
+  enabled: true
+  path: "/healthz"
+  port: 9464
+  scheme: HTTP
+```
+
+`probe.port` takes either a number or a named container port, and falls back to `containerPort` when omitted. A port that is not exposed by the container is accepted: it is the probe that resolves it, not a `containerPort` entry.
+
+This matters more than it looks. Probing the application port means every probe tick **executes a request against your application** — twice a minute, 360 times an hour, forever. On a server-rendered application (Next.js, Rails, Spring with a template engine) each tick is a full render, and readiness probes are the single most frequent request a pod ever receives. Pointing the probe at a lightweight endpoint — a static route, or the separate metrics port that already answers `/healthz` — removes that load without touching the application code. Keeping the probe on the real application port is the right choice when the point of the probe is precisely to check that the application can render.
+
+```yaml
+probe:
+  enabled: true
+  path: "/ready"
+  httpHeaders:
+    - name: X-Probe
+      value: kubelet
+```
+
+`probe.scheme` is `HTTP` (default) or `HTTPS`. `probe.httpHeaders` is a list of `name`/`value` pairs sent with the request.
+
+### Startup probe
+
+Slow-starting applications can be given their own budget with a startup probe. While it has not succeeded, the readiness and liveness probes are not evaluated — so a container that takes minutes to warm up is not restarted in a loop:
+
+```
+startupProbe:
+  enabled: true
+  path: "/healthz"
+  settings:
+    periodSeconds: 5
+    failureThreshold: 30
+```
+
+The default `failureThreshold` for the startup probe is **30**, not 3: the startup budget is roughly `periodSeconds × failureThreshold` (5 min with the values above). Once the startup probe passes, Kubernetes hands over to the readiness and liveness probes.
+
+The startup probe accepts the same `path`, `port`, `scheme`, `httpHeaders` and `settings` as the readiness probe.
+
 ### Liveness probe
 
-The liveness probe restarts the container when it becomes unresponsive. It uses the same settings as the readiness probe:
+The liveness probe restarts the container when it becomes unresponsive. It uses the same settings as the readiness probe, plus the same `port`, `scheme` and `httpHeaders`:
 
 ```
 livenessProbe:
   enabled: true
   path: "/healthz"
+  port: 9464
   settings:
     initialDelaySeconds: 5
     periodSeconds: 10
     failureThreshold: 3
 ```
 
-Before enabling a liveness probe, consider [the caveats](https://srcco.de/posts/kubernetes-liveness-probes-are-dangerous.html).
+Before enabling a liveness probe, consider [the caveats](https://srcco.de/posts/kubernetes-liveness-probes-are-dangerous.html). A liveness probe that hits the application port is also a restart loop waiting to happen: the moment the application is slow, the probe fails, and the restart makes it slower still.
 
 ## High-Availability
 
@@ -1266,10 +1317,22 @@ OneChart generates the following Kubernetes objects:
 | `podAnnotations`         | map     | `{}`                         | Extra pod annotations.                                                                    |
 | `probe.enabled`          | boolean | `false`                      | Enable the HTTP readiness probe.                                                          |
 | `probe.path`             | string  | `/`                          | Readiness probe path.                                                                     |
+| `probe.port`             | number  | `""` (→ `containerPort`)     | Readiness probe port, defaults to the container port.                                     |
+| `probe.scheme`           | string  | `HTTP`                       | Readiness probe scheme, `HTTP` or `HTTPS`.                                                |
+| `probe.httpHeaders`      | list    | `[]`                         | Readiness probe custom headers as `name`/`value` pairs.                                   |
 | `probe.settings`         | map     |                              | Readiness probe tuning, rendered verbatim.                                                |
 | `livenessProbe.enabled`  | boolean | `false`                      | Enable the HTTP liveness probe.                                                           |
 | `livenessProbe.path`     | string  | `/`                          | Liveness probe path.                                                                      |
+| `livenessProbe.port`     | number  | `""` (→ `containerPort`)     | Liveness probe port, defaults to the container port.                                      |
+| `livenessProbe.scheme`   | string  | `HTTP`                       | Liveness probe scheme, `HTTP` or `HTTPS`.                                                 |
+| `livenessProbe.httpHeaders` | list | `[]`                         | Liveness probe custom headers as `name`/`value` pairs.                                    |
 | `livenessProbe.settings` | map     |                              | Liveness probe tuning, rendered verbatim.                                                 |
+| `startupProbe.enabled`   | boolean | `false`                      | Enable the HTTP startup probe.                                                            |
+| `startupProbe.path`      | string  | `/`                          | Startup probe path.                                                                       |
+| `startupProbe.port`      | number  | `""` (→ `containerPort`)     | Startup probe port, defaults to the container port.                                       |
+| `startupProbe.scheme`    | string  | `HTTP`                       | Startup probe scheme, `HTTP` or `HTTPS`.                                                  |
+| `startupProbe.httpHeaders` | list  | `[]`                         | Startup probe custom headers as `name`/`value` pairs.                                     |
+| `startupProbe.settings`  | map     | `failureThreshold: 30`       | Startup probe tuning, rendered verbatim (default budget ≈ 5 min).                         |
 | `resources.requests`     | map     | `{cpu: 200m, memory: 200Mi}` | Requested resources.                                                                      |
 | `resources.limits`       | map     |                              | Resource limits.                                                                          |
 | `resources.ignore`       | boolean | `false`                      | Omit the `resources` block entirely.                                                      |
